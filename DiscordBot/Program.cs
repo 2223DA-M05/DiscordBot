@@ -40,6 +40,7 @@ namespace DiscordBot
 
             commands.RegisterCommands<PingModule>();
             commands.RegisterCommands<RockPaperScisorsModule>();
+            commands.RegisterCommands<WereWolfModule>();
 
             await discord.ConnectAsync();
             await host.RunAsync();
