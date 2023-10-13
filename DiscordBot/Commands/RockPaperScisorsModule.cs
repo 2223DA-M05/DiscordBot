@@ -11,6 +11,23 @@ namespace DiscordBot.Commands
 {
     public class RockPaperScisorsModule : BaseCommandModule
     {
+        [Command("test")]
+        public async Task TestCommand(CommandContext ctx)
+        {
+            var builder = new DiscordMessageBuilder()
+                    .WithContent("Selecciona pedra, paper o tisores:")
+                    .AddComponents(new DiscordComponent[]
+                    {
+                        new DiscordButtonComponent(ButtonStyle.Primary, "pedra", null, false, new DiscordComponentEmoji(DiscordEmoji.FromName(ctx.Client, ":rock:"))),
+                        new DiscordButtonComponent(ButtonStyle.Primary, "paper", null, false, new DiscordComponentEmoji(DiscordEmoji.FromName(ctx.Client, ":roll_of_paper:"))),
+                        new DiscordButtonComponent(ButtonStyle.Primary, "tisores", null, false, new DiscordComponentEmoji(DiscordEmoji.FromName(ctx.Client, ":scissors:"))),
+                    });
+            var m2 = await builder.SendAsync(ctx.Channel);
+            var result = await m2.WaitForButtonAsync(ctx.User);
+            //await result.Result.Interaction.CreateResponseAsync(InteractionResponseType.DeferredMessageUpdate);
+            await result.Result.Interaction.CreateResponseAsync(InteractionResponseType.UpdateMessage, new DiscordInteractionResponseBuilder().AddEmbed(new DiscordEmbedBuilder().WithImageUrl("https://i.giphy.com/Vuw9m5wXviFIQ.gif").Build()));
+        }
+
         [Command("rockpaperscisors"), Aliases("rps")]
         public async Task RockPaperScisorsCommand(CommandContext ctx, DiscordMember member)
         {

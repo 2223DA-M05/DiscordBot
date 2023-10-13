@@ -1,10 +1,4 @@
-﻿using DiscordBot.Commands;
-using DSharpPlus;
-using DSharpPlus.CommandsNext;
-using DSharpPlus.Interactivity;
-using DSharpPlus.Interactivity.Enums;
-using DSharpPlus.Interactivity.Extensions;
-using Microsoft.Extensions.Configuration;
+﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
@@ -14,37 +8,21 @@ namespace DiscordBot
     {
         static async Task Main(string[] args)
         {
-            var hostBuilder = Host.CreateApplicationBuilder(args);
-            hostBuilder.Configuration.AddUserSecrets<Program>();
-            using IHost host = hostBuilder.Build();
+            await Host.CreateDefaultBuilder(args)
+                .UseConsoleLifetime()
+                .ConfigureHostConfiguration(ConfigureConfiguration)
+                .ConfigureServices(ConfigureServices)
+                .RunConsoleAsync();
+        }
 
-            var config = host.Services.GetRequiredService<IConfiguration>();
+        static void ConfigureServices(IServiceCollection services)
+        {
+            services.AddHostedService<DiscordBotService>();
+        }
 
-            var discord = new DiscordClient(new DiscordConfiguration()
-            {
-                Token = config["DiscordToken"],
-                TokenType = TokenType.Bot,
-                Intents = DiscordIntents.AllUnprivileged | DiscordIntents.MessageContents
-            });
-
-            var commands = discord.UseCommandsNext(new CommandsNextConfiguration()
-            {
-                StringPrefixes = new[] { "!" }
-            });
-
-            discord.UseInteractivity(new InteractivityConfiguration()
-            {
-                PollBehaviour = PollBehaviour.KeepEmojis,
-                Timeout = TimeSpan.FromSeconds(30)
-            });
-
-            commands.RegisterCommands<PingModule>();
-            commands.RegisterCommands<RockPaperScisorsModule>();
-            commands.RegisterCommands<WereWolfModule>();
-
-            await discord.ConnectAsync();
-            await host.RunAsync();
-            await Task.Delay(-1);
+        static void ConfigureConfiguration(IConfigurationBuilder builder)
+        {
+            builder.AddUserSecrets<Program>();
         }
     }
 }
